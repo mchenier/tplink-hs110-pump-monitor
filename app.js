@@ -8,6 +8,10 @@ const passEmailSender = process.env.PASS_EMAIL_SENDER;
 const emailReceiver = process.env.EMAIL_RECEIVER;
 const waitBetweenRead = process.env.WAIT_BETWEEN_READ;
 const logFileName = process.env.LOG_FILENAME;
+const idleThreshold = process.env.IDLE_THRESHOLD;
+
+var running = false;
+var lastStartedTime = Date.now()/1000;
 
 //Init logger
 var log4js = require('log4js');
@@ -38,39 +42,49 @@ async function main() {
       console.log(err); 
       return;
     } 
+        
+    while (true) {
+      try {
+        var device = tplink.getHS110(aliasDevice);
+      }  
+      catch(err) {
+        console.log(aliasDevice + " " + err);
+        break;
+      }
     
-    let monitoring = true;
-    let running = false;    
-    while (monitoring) {
-        try {
-          var device = tplink.getHS110(aliasDevice);
-        }  
-        catch(err) {
-          console.log(aliasDevice + " " + err);
-          break;
-        }
-      
-        try {
-          var usage = await device.getPowerUsage();
-        }
-        catch (err) {
-          console.log(err);
-          break; 
-        }        
-      
+      try {
+        var usage = await device.getPowerUsage();
+        
         console.log(usage);
-        if (usage.power > powerThreshold) {            
-            if (running == false) {
-                running = true;
-                deviceStarted();                
-            }
-        }
-        else if (running == true) {
-            deviceStopped();
-            running = false;
-        }
-        await sleep(waitBetweenRead);        
+        verifyStartStop(usage);
+        verifyLastTimeStarted();
+        
+        await sleep(waitBetweenRead);  
+      }
+      catch (err) {
+        console.log(err);
+        break; 
+      }      
     }    
+}
+
+function verifyLastTimeStarted() {  
+  if (Date.now()/1000 - lastStartedTime >= idleThreshold) {    
+    sendEmail(aliasDevice + " didn't start for the last " + idleThreshold/60 + " minutes");
+  }
+}
+
+function verifyStartStop(usage) {
+  if (usage.power > powerThreshold) {            
+    if (running == false) {
+        running = true;
+        deviceStarted();                
+    }
+  }
+  else if (running == true) {
+      deviceStopped();
+      running = false;
+  }
 }
 
 function sleep(ms) {
@@ -80,28 +94,52 @@ function sleep(ms) {
 function deviceStarted() {
     logger.info(aliasDevice + " Started");
     sendEmail(aliasDevice + " Started");
-    
+    lastStartedTime = Date.now()/1000;    
 }
 
 function deviceStopped() {
     logger.info(aliasDevice + " Stopped");
     sendEmail(aliasDevice + " stopped");
 }
-  
-function sendEmail(message) {
-    var mailOptions = {
-        from: emailSender,
-        to: emailReceiver,
-        subject: message,
-        text: message
-      };
-    transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log(message + ' Email sent: ' + info.response);
+
+function readLogFile() {
+  var fs = require('fs');
+
+  return new Promise(function(resolve, reject) {
+    fs.readFile(logFileName + '.log', 'utf8', function(err, data) {
+        if(err) { 
+            reject(err);  
+        }
+        else {              
+            resolve(data);
         }
       });
+  });
+}
+  
+async function sendEmail(message) {
+
+  let dataLog = await readLogFile()  
+  .then(data => {
+    return data;
+  })
+  .catch(err => {
+    throw(err);
+  });  
+
+  var mailOptions = {
+      from: emailSender,
+      to: emailReceiver,
+      subject: message,
+      text: dataLog
+    };
+  transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(message + ' Email sent: ' + info.response);
+      }
+    });
 }
 
 main();

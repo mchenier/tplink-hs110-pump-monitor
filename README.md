@@ -23,7 +23,8 @@ npm start
 # Alert / Log
 
 Every time the device start or stop there will be an entry in a log file of the name you choose.
-There will also an email sent to the email you choose.
+There will also an email sent to the email you choose. The entire log will be sent in the email.
+There is also an alert if the device didn't start for a period of time.
 
 # Improvement
 

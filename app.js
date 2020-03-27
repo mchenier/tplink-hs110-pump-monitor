@@ -25,8 +25,7 @@ const transporter = nodemailer.createTransport({
       user: emailSender,
       pass: passEmailSender
     }
-  });
-
+  });  
 
 async function main() {          
     const { login } = require("tplink-cloud-api");    
@@ -41,7 +40,7 @@ async function main() {
     } 
     
     let monitoring = true;
-    let running = false;
+    let running = false;    
     while (monitoring) {
         try {
           var device = tplink.getHS110(aliasDevice);

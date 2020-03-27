@@ -1,0 +1,19 @@
+{
+  "name": "pompe",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "log4js": "^6.1.2",
+    "nodemailer": "^6.4.6",
+    "tplink-cloud-api": "^0.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node ./app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

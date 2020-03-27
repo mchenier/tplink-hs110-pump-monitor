@@ -20,7 +20,13 @@ Just run this command after to start the app.
 ```
 npm start
 ```
+# Alert / Log
+
+Every time the device start or stop there will be an entry in a log file of the name you choose.
+There will also an email sent to the email you choose.
+
 # Improvement
 
+I made this little project because the need of monitoring my pump is important for me and didn't find anything else that work like I wanted.
 If you want to contribute or have a good idea please let me know.
 You can change how you are alerted in the deviceStarted() and deviceStopped() function.

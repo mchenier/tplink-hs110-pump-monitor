@@ -79,14 +79,14 @@ function sleep(ms) {
 }
 
 function deviceStarted() {
-    logger.info("Started");
-    sendEmail("Pompe Started");
+    logger.info(aliasDevice + " Started");
+    sendEmail(aliasDevice + " Started");
     
 }
 
 function deviceStopped() {
-    logger.info("Stopped");
-    sendEmail("Pompe stopped");
+    logger.info(aliasDevice + " Stopped");
+    sendEmail(aliasDevice + " stopped");
 }
   
 function sendEmail(message) {

@@ -30,9 +30,9 @@ const transporter = nodemailer.createTransport({
 
 async function main() {          
     const { login } = require("tplink-cloud-api");    
-    
+        
     try {
-      const tplink = await login(userTpLink, passTpLink)
+      var tplink = await login(userTpLink, passTpLink)
       let deviceList = await tplink.getDeviceList();
     }
     catch (err) {
@@ -52,7 +52,7 @@ async function main() {
         }
       
         try {
-          let usage = await device.getPowerUsage();
+          var usage = await device.getPowerUsage();
         }
         catch (err) {
           console.log(err);
@@ -67,7 +67,7 @@ async function main() {
             }
         }
         else if (running == true) {
-            deviceStoped();
+            deviceStopped();
             running = false;
         }
         await sleep(waitBetweenRead);        
@@ -84,7 +84,7 @@ function deviceStarted() {
     
 }
 
-function deviceStoped() {
+function deviceStopped() {
     logger.info("Stopped");
     sendEmail("Pompe stopped");
 }

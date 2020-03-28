@@ -75,7 +75,8 @@ function verifyLastTimeStarted() {
 }
 
 function verifyStartStop(usage) {
-  if (usage.power > powerThreshold) {            
+  let power = ('power' in usage ? usage.power : usage.power_mw);  
+  if (power > powerThreshold) {            
     if (running == false) {
         running = true;
         deviceStarted();                

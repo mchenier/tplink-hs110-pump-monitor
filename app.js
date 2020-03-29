@@ -12,6 +12,7 @@ const idleThreshold = process.env.IDLE_THRESHOLD;
 
 var running = false;
 var lastStartedTime = Date.now()/1000;
+var emailSentLastTimeStarted = false;
 
 //Init logger
 var log4js = require('log4js');
@@ -69,8 +70,9 @@ async function main() {
 }
 
 function verifyLastTimeStarted() {  
-  if (Date.now()/1000 - lastStartedTime >= idleThreshold) {    
-    sendEmail(aliasDevice + " didn't start for the last " + idleThreshold/60 + " minutes");
+  if (!emailSentLastTimeStarted && Date.now()/1000 - lastStartedTime >= idleThreshold) {      
+    sendEmail(aliasDevice + " didn't start for the last " + idleThreshold/60 + " minutes");    
+    emailSentLastTimeStarted = true;
   }
 }
 
@@ -96,6 +98,7 @@ function deviceStarted() {
     logger.info(aliasDevice + " Started");
     sendEmail(aliasDevice + " Started");
     lastStartedTime = Date.now()/1000;    
+    emailSentLastTimeStarted = false;
 }
 
 function deviceStopped() {

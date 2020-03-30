@@ -17,8 +17,13 @@ var emailSentLastTimeStarted = false;
 //Init logger
 var log4js = require('log4js');
 log4js.configure({
-    appenders: { monitor: { type: 'file', filename: './' + logFileName + '.log' } },
-    categories: { default: { appenders: ['monitor'], level: 'info' } }
+  appenders: {
+    out: { type: 'console' }, 
+    info: { type: 'file', filename: './' + logFileName + '.log' }
+  },
+  categories: {
+    default: { appenders: ['out','info'], level: 'info' }
+  }
   });    
 const logger = log4js.getLogger('monitor'); 
 
@@ -56,7 +61,7 @@ async function main() {
       try {
         var usage = await device.getPowerUsage();
         
-        console.log(usage);
+        logger.info(Date(Date.now()).toString() + ": " + JSON.stringify(usage));
         verifyStartStop(usage);
         verifyLastTimeStarted();
         

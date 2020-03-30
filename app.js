@@ -61,7 +61,7 @@ async function main() {
       try {
         var usage = await device.getPowerUsage();
         
-        logger.info(Date(Date.now()).toString() + ": " + JSON.stringify(usage));
+        logger.info(JSON.stringify(usage));
         verifyStartStop(usage);
         verifyLastTimeStarted();
         

@@ -9,23 +9,24 @@ const emailReceiver = process.env.EMAIL_RECEIVER;
 const waitBetweenRead = process.env.WAIT_BETWEEN_READ;
 const logFileName = process.env.LOG_FILENAME;
 const idleThreshold = process.env.IDLE_THRESHOLD;
-
-var running = false;
-var lastStartedTime = Date.now()/1000;
-var emailSentLastTimeStarted = false;
+const repeatAlertEvery = process.env.REPEAT_ALERT_EVERY;
+const deviceRunningTimeThreshold = process.env.DEVICE_RUNNING_TIME_THRESHOLD;
 
 //Init logger
 var log4js = require('log4js');
 log4js.configure({
   appenders: {
     out: { type: 'console' }, 
-    info: { type: 'file', filename: './' + logFileName + '.log' }
+    info: { type: 'file', filename: './' + logFileName + '.log' },
+    debug: { type: 'file', filename: './' + logFileName + '_debug.log' }
   },
   categories: {
-    default: { appenders: ['out','info'], level: 'info' }
+    default: { appenders: ['out','info'], level: 'info' },
+    debug: { appenders: ['out','debug'], level: 'info' }
   }
   });    
-const logger = log4js.getLogger('monitor'); 
+const logger = log4js.getLogger('default'); 
+const loggerDebug = log4js.getLogger('debug'); 
 
 //Init nodemailer
 const nodemailer = require('nodemailer');
@@ -37,78 +38,109 @@ const transporter = nodemailer.createTransport({
     }
   });  
 
+var monitoredDevice = {
+  started: false,
+  lastStartedTime: undefined,
+  lastTimeInactivityAlert: undefined,
+  lastTimeRunningAlert: undefined,
+  usage: undefined,
+  init: function() {
+    this.started = false;
+    this.lastStartedTime = getDate();
+    this.lastTimeInactivityAlert = getDate();
+    this.lastTimeRunningAlert = getDate();
+    this.usage = undefined;
+  },
+  isDeviceStarted: function() { return this.status; },
+  isDeviceStopped: function() { return !this.status; },
+  startDevice: function() { 
+    this.status = true;
+    logger.info(aliasDevice + " Started");
+    sendEmail(aliasDevice + " Started");
+    this.lastStartedTime = getDate();  
+  },
+  stopDevice: function() {
+    this.started = false;
+    logger.info(aliasDevice + " Stopped");
+    sendEmail(aliasDevice + " stopped");
+  }   
+}
+
 async function main() {          
     const { login } = require("tplink-cloud-api");    
+
+    loggerDebug.info("-----Monitoring started!-----");
+    monitoredDevice.init();
         
     try {
       var tplink = await login(userTpLink, passTpLink)
-      let deviceList = await tplink.getDeviceList();
+      await tplink.getDeviceList();
     }
     catch (err) {
-      console.log(err); 
+      loggerDebug.info(err); 
       return;
     } 
-        
+      
     while (true) {
       try {
         var device = tplink.getHS110(aliasDevice);
       }  
       catch(err) {
-        console.log(aliasDevice + " " + err);
+        loggerDebug.info(aliasDevice + " " + err);
         break;
       }
     
       try {
-        var usage = await device.getPowerUsage();
+        monitoredDevice.usage = await device.getPowerUsage();
         
-        logger.info(JSON.stringify(usage));
-        verifyStartStop(usage);
+        loggerDebug.info(JSON.stringify(monitoredDevice.usage));
+        verifyStartStop();
         verifyLastTimeStarted();
+        verifyRunningTime();
         
         await sleep(waitBetweenRead);  
       }
       catch (err) {
-        console.log(err);
+        loggerDebug.info(err);
         break; 
       }      
     }    
 }
 
 function verifyLastTimeStarted() {  
-  if (!emailSentLastTimeStarted && Date.now()/1000 - lastStartedTime >= idleThreshold) {      
-    sendEmail(aliasDevice + " didn't start for the last " + idleThreshold/60 + " minutes");    
-    emailSentLastTimeStarted = true;
+  if (getDate() - monitoredDevice.lastTimeInactivityAlert >= repeatAlertEvery &&
+   getDate() - monitoredDevice.lastStartedTime >= idleThreshold) {      
+    sendEmail(aliasDevice + " didn't start for the last " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
+    monitoredDevice.lastTimeInactivityAlert = getDate();
   }
 }
 
-function verifyStartStop(usage) {
-  let power = ('power' in usage ? usage.power : usage.power_mw);  
+function verifyStartStop() {
+  let power = ('power' in monitoredDevice.usage ? monitoredDevice.usage.power : monitoredDevice.usage.power_mw);  
   if (power > powerThreshold) {            
-    if (running == false) {
-        running = true;
-        deviceStarted();                
+    if (monitoredDevice.isDeviceStopped()) {
+        monitoredDevice.startDevice();        
     }
   }
-  else if (running == true) {
-      deviceStopped();
-      running = false;
+  else if (monitoredDevice.isDeviceStarted()) {    
+      monitoredDevice.stopDevice();
   }
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms), rejected => {});
+function verifyRunningTime() {
+  if (getDate() - monitoredDevice.lastTimeRunningAlert >= repeatAlertEvery &&
+    monitoredDevice.isDeviceStarted && getDate() - monitoredDevice.lastStartedTime >= deviceRunningTimeThreshold) {
+    sendEmail(aliasDevice + " running for more then " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
+    monitoredDevice.lastTimeRunningAlert = getDate();
+  }
 }
 
-function deviceStarted() {
-    logger.info(aliasDevice + " Started");
-    sendEmail(aliasDevice + " Started");
-    lastStartedTime = Date.now()/1000;    
-    emailSentLastTimeStarted = false;
+function getDate() {
+  return Date.now()/1000;
 }
 
-function deviceStopped() {
-    logger.info(aliasDevice + " Stopped");
-    sendEmail(aliasDevice + " stopped");
+function sleep(s) {
+    return new Promise(resolve => setTimeout(resolve, s*1000), rejected => {});
 }
 
 function readLogFile() {
@@ -144,9 +176,9 @@ async function sendEmail(message) {
     };
   transporter.sendMail(mailOptions, function(error, info){
       if (error) {
-        console.log(error);
+        loggerDebug.info(error);
       } else {
-        console.log(message + ' Email sent: ' + info.response);
+        loggerDebug.info(message + ' Email sent: ' + info.response);
       }
     });
 }

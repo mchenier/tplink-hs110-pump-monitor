@@ -112,7 +112,7 @@ function verifyStartStop() {
 
 function verifyRunningTime() {
   if (getDate() - monitoredDevice.lastTimeRunningAlert >= repeatAlertEvery &&
-    monitoredDevice.isDeviceStarted && getDate() - monitoredDevice.lastStartedTime >= deviceRunningTimeThreshold) {
+    monitoredDevice.isDeviceStarted() && getDate() - monitoredDevice.lastStartedTime >= deviceRunningTimeThreshold) {
     sendEmail(aliasDevice + " running for more then " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
     monitoredDevice.lastTimeRunningAlert = getDate();
   }

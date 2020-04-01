@@ -9,6 +9,12 @@ const idleThreshold = process.env.IDLE_THRESHOLD;
 const repeatAlertEvery = process.env.REPEAT_ALERT_EVERY;
 const deviceRunningTimeThreshold = process.env.DEVICE_RUNNING_TIME_THRESHOLD;
 
+//Cloud Api specific params
+const apiSelection = process.env.API_SELECTION;
+const userTpLink = process.env.USER_TPLINK;
+const passTpLink = process.env.PASS_TPLINK;
+const waitBetweenRead = process.env.WAIT_BETWEEN_READ;
+
 //Init logger
 var log4js = require('log4js');
 log4js.configure({
@@ -41,6 +47,9 @@ var monitoredDevice = {
   lastTimeInactivityAlert: undefined,
   lastTimeRunningAlert: undefined,
   usage: undefined,
+  getPower: function() {
+    return ('power' in monitoredDevice.usage ? monitoredDevice.usage.power : monitoredDevice.usage.power_mw/1000);
+  },
   init: function() {
     this.started = false;
     this.lastStartedTime = getDate();
@@ -63,25 +72,69 @@ var monitoredDevice = {
   }   
 }
 
-async function main() {        
-  const { Client } = require('tplink-smarthome-api');
-  const client = new Client();
-
+async function main() {   
   loggerDebug.info("-----Monitoring started!-----");    
   monitoredDevice.init();
 
+  if(apiSelection == "cloud") {
+    cloudApi();
+  } 
+  else {
+    lanApi();
+  }    
+}
+
+function lanApi() {
+  const { Client } = require('tplink-smarthome-api');
+  const client = new Client();
+
   client.startDiscovery().on('device-new', (plug) => {
     if (plug.alias == aliasDevice) {
-      plug.on('emeter-realtime-update', monitoringLoop);
+      plug.on('emeter-realtime-update', monitoring);
     }    
   });
 }
 
-const monitoringLoop = function(emeterRealtime) {
+async function cloudApi() {          
+  const { login } = require("tplink-cloud-api");    
+      
   try {
-    monitoredDevice.usage = emeterRealtime;
+    var tplink = await login(userTpLink, passTpLink)
+    await tplink.getDeviceList();
+  }
+  catch (err) {
+    loggerDebug.info(err); 
+    return;
+  } 
+
+  try {
+    var device = tplink.getHS110(aliasDevice);
+  }  
+  catch(err) {
+    loggerDebug.info(aliasDevice + " " + err);
+    return;
+  }
     
-    loggerDebug.info(JSON.stringify(monitoredDevice.usage));
+  while (true) {
+    try {
+      monitoredDevice.usage = await device.getPowerUsage();
+      
+      monitoring(monitoredDevice.usage)
+      
+      await sleep(waitBetweenRead);  
+    }
+    catch (err) {
+      loggerDebug.info(err);
+      break; 
+    }      
+  }    
+}
+
+const monitoring = function(usage) {
+  try {
+    monitoredDevice.usage = usage;   
+    
+    loggerDebug.info(JSON.stringify(usage));
     verifyStartStop();
     verifyLastTimeStarted();
     verifyRunningTime();
@@ -100,7 +153,7 @@ function verifyLastTimeStarted() {
 }
 
 function verifyStartStop() {
-  if (monitoredDevice.usage.power > powerThreshold) {            
+  if (monitoredDevice.getPower() > powerThreshold) {            
     if (monitoredDevice.isDeviceStopped()) {
         monitoredDevice.startDevice();        
     }
@@ -116,6 +169,10 @@ function verifyRunningTime() {
     sendEmail(aliasDevice + " running for more then " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
     monitoredDevice.lastTimeRunningAlert = getDate();
   }
+}
+
+function sleep(s) {
+  return new Promise(resolve => setTimeout(resolve, s*1000), rejected => {});
 }
 
 function getDate() {

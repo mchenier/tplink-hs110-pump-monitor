@@ -3,7 +3,10 @@ Monitor a HS110 power so you can get notification on device start and stop.
 There is also an alert if the device is idle for a long period of time.
 Usefull for a sump pump but could serve other needs.
 
-Written in Node.js using https://github.com/plasticrake/tplink-smarthome-api
+Written in Node.js using https://github.com/plasticrake/tplink-smarthome-api and https://www.npmjs.com/package/tplink-cloud-api.
+You can select if you prefer using the cloud API or Lan API.
+
+The cloud API has some limitation on the number of calls you can do per day so it may be best to use the LAN if possible.
 
 # Usage 
 

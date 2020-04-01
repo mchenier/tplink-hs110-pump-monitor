@@ -48,10 +48,10 @@ var monitoredDevice = {
     this.lastTimeRunningAlert = getDate();
     this.usage = undefined;
   },
-  isDeviceStarted: function() { return this.status; },
-  isDeviceStopped: function() { return !this.status; },
+  isDeviceStarted: function() { return this.started; },
+  isDeviceStopped: function() { return !this.started; },
   startDevice: function() { 
-    this.status = true;
+    this.started = true;
     logger.info(aliasDevice + " Started");
     sendEmail(aliasDevice + " Started");
     this.lastStartedTime = getDate();  

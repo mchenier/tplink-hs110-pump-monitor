@@ -8,6 +8,7 @@ const logFileName = process.env.LOG_FILENAME;
 const idleThreshold = process.env.IDLE_THRESHOLD;
 const repeatAlertEvery = process.env.REPEAT_ALERT_EVERY;
 const deviceRunningTimeThreshold = process.env.DEVICE_RUNNING_TIME_THRESHOLD;
+const nbLineLogEmail = process.env.NB_LINE_LOG_EMAIL;
 
 //Cloud Api specific params
 const apiSelection = process.env.API_SELECTION;
@@ -198,11 +199,15 @@ async function sendEmail(message) {
 
   let dataLog = await readLogFile()  
   .then(data => {
-    return data;
+    return data.toString().split("\n");
   })
   .catch(err => {
     throw(err);
   });  
+
+  dataLog = dataLog.slice(Math.max(dataLog.length - nbLineLogEmail, 0))
+  console.log(dataLog);
+  dataLog = dataLog.toString().replace(/,/g, "\n");  
 
   var mailOptions = {
       from: emailSender,

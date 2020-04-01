@@ -1,12 +1,9 @@
 require('dotenv').config()
 const powerThreshold = process.env.POWER_THRESHOLD;
 const aliasDevice = process.env.ALIAS_DEVICE;
-const userTpLink = process.env.USER_TPLINK;
-const passTpLink = process.env.PASS_TPLINK;
 const emailSender = process.env.EMAIL_SENDER;
 const passEmailSender = process.env.PASS_EMAIL_SENDER;
 const emailReceiver = process.env.EMAIL_RECEIVER;
-const waitBetweenRead = process.env.WAIT_BETWEEN_READ;
 const logFileName = process.env.LOG_FILENAME;
 const idleThreshold = process.env.IDLE_THRESHOLD;
 const repeatAlertEvery = process.env.REPEAT_ALERT_EVERY;
@@ -66,45 +63,32 @@ var monitoredDevice = {
   }   
 }
 
-async function main() {          
-    const { login } = require("tplink-cloud-api");    
+async function main() {        
+  const { Client } = require('tplink-smarthome-api');
+  const client = new Client();
 
-    loggerDebug.info("-----Monitoring started!-----");
-    monitoredDevice.init();
-        
-    try {
-      var tplink = await login(userTpLink, passTpLink)
-      await tplink.getDeviceList();
-    }
-    catch (err) {
-      loggerDebug.info(err); 
-      return;
-    } 
-      
-    while (true) {
-      try {
-        var device = tplink.getHS110(aliasDevice);
-      }  
-      catch(err) {
-        loggerDebug.info(aliasDevice + " " + err);
-        break;
-      }
-    
-      try {
-        monitoredDevice.usage = await device.getPowerUsage();
-        
-        loggerDebug.info(JSON.stringify(monitoredDevice.usage));
-        verifyStartStop();
-        verifyLastTimeStarted();
-        verifyRunningTime();
-        
-        await sleep(waitBetweenRead);  
-      }
-      catch (err) {
-        loggerDebug.info(err);
-        break; 
-      }      
+  loggerDebug.info("-----Monitoring started!-----");    
+  monitoredDevice.init();
+
+  client.startDiscovery().on('device-new', (plug) => {
+    if (plug.alias == aliasDevice) {
+      plug.on('emeter-realtime-update', monitoringLoop);
     }    
+  });
+}
+
+const monitoringLoop = function(emeterRealtime) {
+  try {
+    monitoredDevice.usage = emeterRealtime;
+    
+    loggerDebug.info(JSON.stringify(monitoredDevice.usage));
+    verifyStartStop();
+    verifyLastTimeStarted();
+    verifyRunningTime();
+  }
+  catch (err) {
+    loggerDebug.info(err);
+  } 
 }
 
 function verifyLastTimeStarted() {  
@@ -116,8 +100,7 @@ function verifyLastTimeStarted() {
 }
 
 function verifyStartStop() {
-  let power = ('power' in monitoredDevice.usage ? monitoredDevice.usage.power : monitoredDevice.usage.power_mw);  
-  if (power > powerThreshold) {            
+  if (monitoredDevice.usage.power > powerThreshold) {            
     if (monitoredDevice.isDeviceStopped()) {
         monitoredDevice.startDevice();        
     }
@@ -137,10 +120,6 @@ function verifyRunningTime() {
 
 function getDate() {
   return Date.now()/1000;
-}
-
-function sleep(s) {
-    return new Promise(resolve => setTimeout(resolve, s*1000), rejected => {});
 }
 
 function readLogFile() {

@@ -194,9 +194,8 @@ function readLogFile() {
       });
   });
 }
-  
-async function sendEmail(message) {
 
+async function logToEmail() {
   let dataLog = await readLogFile()  
   .then(data => {
     return data.toString().split("\n");
@@ -205,15 +204,22 @@ async function sendEmail(message) {
     throw(err);
   });  
 
-  dataLog = dataLog.slice(Math.max(dataLog.length - nbLineLogEmail, 0))
-  console.log(dataLog);
+  dataLog = dataLog.slice(Math.max(dataLog.length - nbLineLogEmail, 0));  
+  dataLog = dataLog.reverse();
   dataLog = dataLog.toString().replace(/,/g, "\n");  
+
+  return dataLog;  
+}
+  
+async function sendEmail(message) {
+
+  let bodyMessage = await logToEmail();
 
   var mailOptions = {
       from: emailSender,
       to: emailReceiver,
       subject: message,
-      text: dataLog
+      text: bodyMessage
     };
   transporter.sendMail(mailOptions, function(error, info){
       if (error) {

@@ -34,4 +34,3 @@ There is also an alert if the device didn't start for a period of time.
 
 I made this little project because the need of monitoring my pump is important for me and didn't find anything else that work like I wanted.
 If you want to contribute or have a good idea please let me know.
-You can change how you are alerted in the deviceStarted() and deviceStopped() function.

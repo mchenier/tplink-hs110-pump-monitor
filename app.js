@@ -6,7 +6,8 @@ const passEmailSender = process.env.PASS_EMAIL_SENDER;
 const emailReceiver = process.env.EMAIL_RECEIVER;
 const logFileName = process.env.LOG_FILENAME;
 const idleThreshold = process.env.IDLE_THRESHOLD;
-const repeatAlertEvery = process.env.REPEAT_ALERT_EVERY;
+const repeatRunningAlertEvery = process.env.REPEAT_RUNNING_ALERT_EVERY;
+const repeatIdleAlertEvery = process.env.REPEAT_IDLE_ALERT_EVERY;
 const deviceRunningTimeThreshold = process.env.DEVICE_RUNNING_TIME_THRESHOLD;
 const nbLineLogEmail = process.env.NB_LINE_LOG_EMAIL;
 
@@ -74,7 +75,11 @@ var monitoredDevice = {
 }
 
 async function main() {   
-  loggerDebug.info("-----Monitoring started!-----");    
+  loggerDebug.info("-----Monitoring started!-----");   
+  loggerDebug.info("Acceptable Inactivity             : " + (idleThreshold/60).toFixed(2) + " minutes");
+  loggerDebug.info("Alert for  Inactivity every       : " + (repeatIdleAlertEvery/60).toFixed(2) + " minutes");
+  loggerDebug.info("Acceptable Activity               : " + (deviceRunningTimeThreshold/60).toFixed(2) + " minutes");
+  loggerDebug.info("Alert for Excessive activity every: " + (repeatRunningAlertEvery/60).toFixed(2) + " minutes"); 
   monitoredDevice.init();
 
   if(apiSelection == "cloud") {
@@ -146,7 +151,7 @@ const monitoring = function(usage) {
 }
 
 function verifyLastTimeStarted() {  
-  if (getDate() - monitoredDevice.lastTimeInactivityAlert >= repeatAlertEvery &&
+  if (getDate() - monitoredDevice.lastTimeInactivityAlert >= repeatIdleAlertEvery &&
    getDate() - monitoredDevice.lastStartedTime >= idleThreshold) {      
     sendEmail(aliasDevice + " didn't start for the last " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
     monitoredDevice.lastTimeInactivityAlert = getDate();
@@ -165,7 +170,7 @@ function verifyStartStop() {
 }
 
 function verifyRunningTime() {
-  if (getDate() - monitoredDevice.lastTimeRunningAlert >= repeatAlertEvery &&
+  if (getDate() - monitoredDevice.lastTimeRunningAlert >= repeatRunningAlertEvery &&
     monitoredDevice.isDeviceStarted() && getDate() - monitoredDevice.lastStartedTime >= deviceRunningTimeThreshold) {
     sendEmail(aliasDevice + " running for more then " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
     monitoredDevice.lastTimeRunningAlert = getDate();

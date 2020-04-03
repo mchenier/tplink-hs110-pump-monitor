@@ -13,7 +13,7 @@ The cloud API has some limitation on the number of calls you can do per day so i
 You will need node.js to run this. https://nodejs.org/en/download/
 
 ```sh
-$ git clone https://github.com/MasterMartbob/tplink-hs110-pump-monitor.git && cd tplink-hs110-pump-monitor
+$ git clone https://github.com/mchenier/tplink-hs110-pump-monitor.git && cd tplink-hs110-pump-monitor
 $ npm install
 ```
 

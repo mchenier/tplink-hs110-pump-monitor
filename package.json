@@ -4,7 +4,6 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
-    "dotenv": "^8.2.0",
     "log4js": "^6.1.2",
     "nodemailer": "^6.4.6",
     "tplink-cloud-api": "^0.4.1",

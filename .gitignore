@@ -1,4 +1,8 @@
 # ignore
 .env
+config.json
 *.log
 *.bat
+tplink-hs110-pump-monitor-linux
+tplink-hs110-pump-monitor-macos
+tplink-hs110-pump-monitor-win.exe

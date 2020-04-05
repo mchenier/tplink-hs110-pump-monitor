@@ -17,13 +17,67 @@ $ git clone https://github.com/mchenier/tplink-hs110-pump-monitor.git && cd tpli
 $ npm install
 ```
 
-Rename example.env to .env
-Edit the .env to match your needs every parameter is explained in the file.
+Rename example.config.env to config.json
+Edit the config.json to match your needs every parameter is explained in the config section.
 
 Just run this command after to start the app.
 ```
 npm start
 ```
+
+# Config
+
+- powerThreshold
+Power at witch the device is detected to be started (I think the unit is watt).
+
+- aliasDevice
+Name of your device in the TPLink app.
+
+- emailSender
+Gmail account you will be using to send email.
+I strongly recommend creating a new gmail account for this app since you will have to give permission to that account for unauthorized google app.
+https://hotter.io/docs/email-accounts/secure-app-gmail/
+
+- passEmailSender
+Password for the sender email.
+
+- emailReceiver
+Email to witch you will received the alerts. I use the same but it could be another one.
+
+- logFileName
+Filename of the log. It will be appended with a .log.
+
+- idleThreshold
+Number of time in second the pump can be idle before you get an alert.
+
+- repeatRunningAlertEvery
+Time in second between each of running alert message in a period of alert threshold exceeded.
+
+- repeatIdleAlertEvery
+Time in second between each of idle alert message in a period of alert threshold exceeded.
+
+- deviceRunningTimeThreshold
+Alert if the device running for more that threshold in second each time it starts.
+
+- nbLineLogEmail
+Number of line of the log to send in the email.
+
+
+Cloud API related
+
+- apiSelection
+Use tplink-cloud-api if set to cloud otherwise use tplink-smarthome-api. Other parameters below only usefull for cloud API.
+cloud and lan should be use
+
+- userTpLink
+Username to connect in TPLink app.
+
+- passTpLink
+Password to connect in TPLink app.
+
+- waitBetweenRead
+Thats the time between each poll to the power of the device in second.
+
 # Alert / Log
 
 Every time the device start or stop there will be an entry in a log file of the name you choose.

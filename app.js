@@ -1,29 +1,12 @@
-require('dotenv').config()
-const powerThreshold = process.env.POWER_THRESHOLD;
-const aliasDevice = process.env.ALIAS_DEVICE;
-const emailSender = process.env.EMAIL_SENDER;
-const passEmailSender = process.env.PASS_EMAIL_SENDER;
-const emailReceiver = process.env.EMAIL_RECEIVER;
-const logFileName = process.env.LOG_FILENAME;
-const idleThreshold = process.env.IDLE_THRESHOLD;
-const repeatRunningAlertEvery = process.env.REPEAT_RUNNING_ALERT_EVERY;
-const repeatIdleAlertEvery = process.env.REPEAT_IDLE_ALERT_EVERY;
-const deviceRunningTimeThreshold = process.env.DEVICE_RUNNING_TIME_THRESHOLD;
-const nbLineLogEmail = process.env.NB_LINE_LOG_EMAIL;
-
-//Cloud Api specific params
-const apiSelection = process.env.API_SELECTION;
-const userTpLink = process.env.USER_TPLINK;
-const passTpLink = process.env.PASS_TPLINK;
-const waitBetweenRead = process.env.WAIT_BETWEEN_READ;
+var CONFIG = require(process.cwd() + '/config.json');
 
 //Init logger
 var log4js = require('log4js');
 log4js.configure({
   appenders: {
     out: { type: 'console' }, 
-    info: { type: 'file', filename: './' + logFileName + '.log' },
-    debug: { type: 'file', filename: './' + logFileName + '_debug.log' }
+    info: { type: 'file', filename: './' + CONFIG.logFileName + '.log' },
+    debug: { type: 'file', filename: './' + CONFIG.logFileName + '_debug.log' }
   },
   categories: {
     default: { appenders: ['out','info'], level: 'info' },
@@ -38,8 +21,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: emailSender,
-      pass: passEmailSender
+      user: CONFIG.emailSender,
+      pass: CONFIG.passEmailSender
     }
   });  
 
@@ -76,13 +59,13 @@ var monitoredDevice = {
 
 async function main() {   
   loggerDebug.info("-----Monitoring started!-----");   
-  loggerDebug.info("Acceptable Inactivity             : " + (idleThreshold/60).toFixed(2) + " minutes");
-  loggerDebug.info("Alert for  Inactivity every       : " + (repeatIdleAlertEvery/60).toFixed(2) + " minutes");
-  loggerDebug.info("Acceptable Activity               : " + (deviceRunningTimeThreshold/60).toFixed(2) + " minutes");
-  loggerDebug.info("Alert for Excessive activity every: " + (repeatRunningAlertEvery/60).toFixed(2) + " minutes"); 
+  loggerDebug.info("Acceptable Inactivity             : " + (CONFIG.idleThreshold/60).toFixed(2) + " minutes");
+  loggerDebug.info("Alert for  Inactivity every       : " + (CONFIG.repeatIdleAlertEvery/60).toFixed(2) + " minutes");
+  loggerDebug.info("Acceptable Activity               : " + (CONFIG.deviceRunningTimeThreshold/60).toFixed(2) + " minutes");
+  loggerDebug.info("Alert for Excessive activity every: " + (CONFIG.repeatRunningAlertEvery/60).toFixed(2) + " minutes"); 
   monitoredDevice.init();
 
-  if(apiSelection == "cloud") {
+  if(CONFIG.apiSelection == "cloud") {
     cloudApi();
   } 
   else {
@@ -95,7 +78,7 @@ function lanApi() {
   const client = new Client();
 
   client.startDiscovery().on('device-new', (plug) => {
-    if (plug.alias == aliasDevice) {
+    if (plug.alias == CONFIG.aliasDevice) {
       plug.on('emeter-realtime-update', monitoring);
     }    
   });
@@ -105,7 +88,7 @@ async function cloudApi() {
   const { login } = require("tplink-cloud-api");    
       
   try {
-    var tplink = await login(userTpLink, passTpLink)
+    var tplink = await login(CONFIG.userTpLink, CONFIG.passTpLink)
     await tplink.getDeviceList();
   }
   catch (err) {
@@ -114,10 +97,10 @@ async function cloudApi() {
   } 
 
   try {
-    var device = tplink.getHS110(aliasDevice);
+    var device = tplink.getHS110(CONFIG.aliasDevice);
   }  
   catch(err) {
-    loggerDebug.info(aliasDevice + " " + err);
+    loggerDebug.info(CONFIG.aliasDevice + " " + err);
     return;
   }
     
@@ -127,7 +110,7 @@ async function cloudApi() {
       
       monitoring(monitoredDevice.usage)
       
-      await sleep(waitBetweenRead);  
+      await sleep(CONFIG.waitBetweenRead);  
     }
     catch (err) {
       loggerDebug.info(err);
@@ -151,15 +134,15 @@ const monitoring = function(usage) {
 }
 
 function verifyLastTimeStarted() {  
-  if (getDate() - monitoredDevice.lastTimeInactivityAlert >= repeatIdleAlertEvery &&
-   getDate() - monitoredDevice.lastStartedTime >= idleThreshold) {      
-    sendEmail(aliasDevice + " didn't start for the last " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
+  if (getDate() - monitoredDevice.lastTimeInactivityAlert >= CONFIG.repeatIdleAlertEvery &&
+   getDate() - monitoredDevice.lastStartedTime >= CONFIG.idleThreshold) {      
+    sendEmail(CONFIG.aliasDevice + " didn't start for the last " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
     monitoredDevice.lastTimeInactivityAlert = getDate();
   }
 }
 
 function verifyStartStop() {
-  if (monitoredDevice.getPower() > powerThreshold) {            
+  if (monitoredDevice.getPower() > CONFIG.powerThreshold) {            
     if (monitoredDevice.isDeviceStopped()) {
         monitoredDevice.startDevice();        
     }
@@ -170,9 +153,9 @@ function verifyStartStop() {
 }
 
 function verifyRunningTime() {
-  if (getDate() - monitoredDevice.lastTimeRunningAlert >= repeatRunningAlertEvery &&
-    monitoredDevice.isDeviceStarted() && getDate() - monitoredDevice.lastStartedTime >= deviceRunningTimeThreshold) {
-    sendEmail(aliasDevice + " running for more then " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
+  if (getDate() - monitoredDevice.lastTimeRunningAlert >= CONFIG.repeatRunningAlertEvery &&
+    monitoredDevice.isDeviceStarted() && getDate() - monitoredDevice.lastStartedTime >= CONFIG.deviceRunningTimeThreshold) {
+    sendEmail(CONFIG.aliasDevice + " running for more then " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
     monitoredDevice.lastTimeRunningAlert = getDate();
   }
 }
@@ -189,7 +172,7 @@ function readLogFile() {
   var fs = require('fs');
 
   return new Promise(function(resolve, reject) {
-    fs.readFile(logFileName + '.log', 'utf8', function(err, data) {
+    fs.readFile(CONFIG.logFileName + '.log', 'utf8', function(err, data) {
         if(err) { 
             reject(err);  
         }
@@ -209,7 +192,7 @@ async function logToEmail() {
     throw(err);
   });  
 
-  dataLog = dataLog.slice(Math.max(dataLog.length - nbLineLogEmail, 0));  
+  dataLog = dataLog.slice(Math.max(dataLog.length - CONFIG.nbLineLogEmail, 0));  
   dataLog = dataLog.reverse();
   dataLog = dataLog.toString().replace(/,/g, "\n");  
 

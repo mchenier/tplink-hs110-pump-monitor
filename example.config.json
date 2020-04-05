@@ -1,0 +1,19 @@
+{
+    "powerThreshold": 50,
+    "aliasDevice": "Pump",
+    "emailSender": "youremail@gmail.com",
+    "passEmailSender": "password",
+    "emailReceiver": "youremail@gmail.com",
+    "logFileName": "Pump",
+    "idleThreshold": 28800,
+    "repeatRunningAlertEvery": 1800,
+    "repeatIdleAlertEvery": 1800,
+    "deviceRunningTimeThreshold": 360,
+    "nbLineLogEmail": 50,
+
+    "apiSelection": "lan",
+    "userTpLink": "youremail@gmail.com",
+    "passTpLink": "password",
+    "waitBetweenRead": 45
+}
+

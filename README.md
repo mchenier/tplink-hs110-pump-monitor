@@ -28,55 +28,56 @@ npm start
 # Config
 
 - powerThreshold
+
 Power at witch the device is detected to be started (I think the unit is watt).
 
 - aliasDevice
 Name of your device in the TPLink app.
 
-- emailSender
-Gmail account you will be using to send email.
-I strongly recommend creating a new gmail account for this app since you will have to give permission to that account for unauthorized google app.
-https://hotter.io/docs/email-accounts/secure-app-gmail/
++ emailSender
+    + Gmail account you will be using to send email.
+    I strongly recommend creating a new gmail account for this app since you will have to give permission to that account for unauthorized google app.
+    https://hotter.io/docs/email-accounts/secure-app-gmail/
 
-- passEmailSender
-Password for the sender email.
++ passEmailSender
+    + Password for the sender email.
 
-- emailReceiver
-Email to witch you will received the alerts. I use the same but it could be another one.
++ emailReceiver
+    + Email to witch you will received the alerts. I use the same but it could be another one.
 
-- logFileName
-Filename of the log. It will be appended with a .log.
++ logFileName
+    + Filename of the log. It will be appended with a .log.
 
-- idleThreshold
-Number of time in second the pump can be idle before you get an alert.
++ idleThreshold
+    + Number of time in second the pump can be idle before you get an alert.
 
-- repeatRunningAlertEvery
-Time in second between each of running alert message in a period of alert threshold exceeded.
++ repeatRunningAlertEvery
+    + Time in second between each of running alert message in a period of alert threshold exceeded.
 
-- repeatIdleAlertEvery
-Time in second between each of idle alert message in a period of alert threshold exceeded.
++ repeatIdleAlertEvery
+    + Time in second between each of idle alert message in a period of alert threshold exceeded.
 
-- deviceRunningTimeThreshold
-Alert if the device running for more that threshold in second each time it starts.
++ deviceRunningTimeThreshold
+    + Alert if the device running for more that threshold in second each time it starts.
 
-- nbLineLogEmail
-Number of line of the log to send in the email.
++ nbLineLogEmail
+    + Number of line of the log to send in the email.
 
 
 Cloud API related
 
-- apiSelection
-Use tplink-cloud-api if set to cloud otherwise use tplink-smarthome-api. Other parameters below only usefull for cloud API.
-cloud and lan should be use
++ apiSelection
+    + Use tplink-cloud-api if set to cloud otherwise use tplink-smarthome-api. Other parameters below only usefull for cloud API.
+    cloud and lan should be use
 
-- userTpLink
-Username to connect in TPLink app.
++ userTpLink
+    + Username to connect in TPLink app.
 
-- passTpLink
-Password to connect in TPLink app.
++ passTpLink
+    + Password to connect in TPLink app.
 
-- waitBetweenRead
-Thats the time between each poll to the power of the device in second.
++ waitBetweenRead
+    + Thats the time between each poll to the power of the device in second.
 
 # Alert / Log
 

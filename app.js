@@ -6,15 +6,18 @@ log4js.configure({
   appenders: {
     out: { type: 'console' }, 
     info: { type: 'file', filename: './' + CONFIG.logFileName + '.log' },
-    debug: { type: 'file', filename: './' + CONFIG.logFileName + '_debug.log' }
+    debug: { type: 'file', filename: './' + CONFIG.logFileName + '_debug.log' },
+    graph: { type: 'file', filename: './' + CONFIG.logFileName + '_graph.log' }
   },
   categories: {
     default: { appenders: ['out','info'], level: 'info' },
-    debug: { appenders: ['out','debug'], level: 'info' }
+    debug: { appenders: ['out','debug'], level: 'info' },
+    graph: { appenders: ['graph'], level: 'info' },
   }
   });    
 const logger = log4js.getLogger('default'); 
 const loggerDebug = log4js.getLogger('debug'); 
+const loggerGraph = log4js.getLogger('graph'); 
 
 //Init nodemailer
 const nodemailer = require('nodemailer');
@@ -46,14 +49,15 @@ var monitoredDevice = {
   isDeviceStopped: function() { return !this.started; },
   startDevice: function() { 
     this.started = true;
-    logger.info(aliasDevice + " Started");
-    sendEmail(aliasDevice + " Started");
+    logger.info(CONFIG.aliasDevice + " Started");
+    sendEmail(CONFIG.aliasDevice + " Started");
     this.lastStartedTime = getDate();  
   },
-  stopDevice: function() {
+  stopDevice: function() {    
     this.started = false;
-    logger.info(aliasDevice + " Stopped");
-    sendEmail(aliasDevice + " stopped");
+    logger.info(CONFIG.aliasDevice + " Stopped");
+    sendEmail(CONFIG.aliasDevice + " stopped");
+    saveGraphData();
   }   
 }
 
@@ -216,6 +220,22 @@ async function sendEmail(message) {
         loggerDebug.info(message + ' Email sent: ' + info.response);
       }
     });
+}
+
+function saveGraphData() {  
+  let fs = require('fs');
+    
+  let start = monitoredDevice.lastStartedTime;    
+  let stop = getDate();
+  let running = stop-start;
+  let startDate = new Date(start*1000);
+  let stopDate = new Date(stop*1000);
+  
+  fs.appendFile('graph.csv', startDate.toLocaleDateString() + " " + startDate.toLocaleTimeString() + " , " +
+  stopDate.toLocaleDateString() + " " + stopDate.toLocaleTimeString() + " , " +
+  running + "\n", function (err) {
+    if (err) throw err;
+  });
 }
 
 main();

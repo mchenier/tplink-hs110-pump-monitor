@@ -65,7 +65,7 @@ This is all parameters you must configure to make the application run. There is 
     + Number of line of the log to send in the email.
 
 
-## Cloud API related
+### Cloud API related
 
 + apiSelection
     + Use tplink-cloud-api if set to cloud otherwise use tplink-smarthome-api. Other parameters below only usefull for cloud API.

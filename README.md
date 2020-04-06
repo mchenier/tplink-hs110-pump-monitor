@@ -27,6 +27,8 @@ npm start
 
 # Config
 
+This is all parameters you must configure to make the application run. There is a file example.config.json giving you good start to setup your instance.
+
 + powerThreshold
     + Power at witch the device is detected to be started (I think the unit is watt).
 
@@ -63,7 +65,7 @@ npm start
     + Number of line of the log to send in the email.
 
 
-Cloud API related
+## Cloud API related
 
 + apiSelection
     + Use tplink-cloud-api if set to cloud otherwise use tplink-smarthome-api. Other parameters below only usefull for cloud API.

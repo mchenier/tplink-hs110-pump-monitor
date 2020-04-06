@@ -27,12 +27,11 @@ npm start
 
 # Config
 
-- powerThreshold
++ powerThreshold
+    + Power at witch the device is detected to be started (I think the unit is watt).
 
-Power at witch the device is detected to be started (I think the unit is watt).
-
-- aliasDevice
-Name of your device in the TPLink app.
++ aliasDevice
+    + Name of your device in the TPLink app.
 
 + emailSender
     + Gmail account you will be using to send email.

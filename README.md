@@ -17,7 +17,7 @@ $ git clone https://github.com/mchenier/tplink-hs110-pump-monitor.git && cd tpli
 $ npm install
 ```
 
-Rename example.config.env to config.json
+Rename example.config.env to config.json.
 Edit the config.json to match your needs every parameter is explained in the config section.
 
 Just run this command after to start the app.

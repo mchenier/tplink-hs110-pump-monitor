@@ -204,8 +204,8 @@ async function sendEmail(message) {
   let bodyMessage = await logToEmail();
 
   var mailOptions = {
-      from: emailSender,
-      to: emailReceiver,
+      from: CONFIG.emailSender,
+      to: CONFIG.emailReceiver,
       subject: message,
       text: bodyMessage
     };

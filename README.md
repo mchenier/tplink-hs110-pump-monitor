@@ -80,6 +80,22 @@ This is all parameters you must configure to make the application run. There is 
 + waitBetweenRead
     + Thats the time between each poll to the power of the device in second.
 
+# Package
+
+If you want to make a package. I used the pkg utiliy (https://github.com/zeit/pkg)
+
+```
+npm install -g pkg
+```
+
+Go in command line in the project directory and type the following.
+
+```
+pkg .
+```
+
+Just have a config.json in the same directory has the executable and execute it.
+
 # Alert / Log
 
 Every time the device start or stop there will be an entry in a log file of the name you choose.

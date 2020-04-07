@@ -10,7 +10,20 @@ The cloud API has some limitation on the number of calls you can do per day so i
 
 # Usage 
 
-You will need node.js to run this. https://nodejs.org/en/download/
+## Package
+
+Take a copy of the file example.config.json.
+Rename example.config.env to config.json.
+Edit the config.json to match your needs every parameter is explained in the config section.
+
+Go in the release section and take the latest version.
+https://github.com/mchenier/tplink-hs110-pump-monitor/releases
+
+Run the program with the config.json in the same folder.
+
+## Using Node.js
+
+Install Node.js if you don't have it. https://nodejs.org/en/download/
 
 ```sh
 $ git clone https://github.com/mchenier/tplink-hs110-pump-monitor.git && cd tplink-hs110-pump-monitor

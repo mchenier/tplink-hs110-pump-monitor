@@ -53,7 +53,7 @@ docker build -t tplink-hs110-pump-monitor .
 docker run --network=host -v <localPath>:/usr/src/app/log -d tplink-hs110-pump-monitor
 ```
 
-Change <localPath> to something like C:\TPLinkMonitor\tplink-hs110-pump-monitor\log
+Change < localPath > to something like C:\TPLinkMonitor\tplink-hs110-pump-monitor\log
 
 # Config
 

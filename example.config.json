@@ -10,10 +10,17 @@
     "repeatIdleAlertEvery": 1800,
     "deviceRunningTimeThreshold": 360,
     "nbLineLogEmail": 50,
+    "waitBetweenRead": 10,
+
+    "enableIdleAlert": "on",
+    "enableRunningAlert": "on",
+    "enableStartAlert": "on",
+    "enableStopAlert": "on",
+
+    "deviceIP": "192.168.0.110",
 
     "apiSelection": "lan",
     "userTpLink": "youremail@gmail.com",
-    "passTpLink": "password",
-    "waitBetweenRead": 45
+    "passTpLink": "password"    
 }
 

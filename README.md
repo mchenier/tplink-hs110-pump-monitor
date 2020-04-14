@@ -10,7 +10,7 @@ The cloud API has some limitation on the number of calls you can do per day so i
 
 # Usage 
 
-## Package
+## Using Package
 
 Take a copy of the file example.config.json.
 Rename example.config.env to config.json.
@@ -37,6 +37,23 @@ Just run this command after to start the app.
 ```
 npm start
 ```
+
+## Using Docker
+
+```sh
+git clone https://github.com/mchenier/tplink-hs110-pump-monitor.git && cd tplink-hs110-pump-monitor
+```
+
+Rename example.config.env to config.json.
+Edit the config.json to match your needs every parameter is explained in the config section.
+
+```sh
+docker build -t tplink-hs110-pump-monitor .
+
+docker run --network=host -v <localPath>:/usr/src/app/log -d tplink-hs110-pump-monitor
+```
+
+Change <localPath> to something like C:\TPLinkMonitor\tplink-hs110-pump-monitor\log
 
 # Config
 
@@ -77,6 +94,25 @@ This is all parameters you must configure to make the application run. There is 
 + nbLineLogEmail
     + Number of line of the log to send in the email.
 
++ waitBetweenRead
+    + Thats the time between each poll to the power of the device in second.
+
++ enableIdleAlert
+    + Enable alerts when idle for too long. Possible value: on, off
+
++ enableRunningAlert
+    + Enable alerts when running for too long. Possible value: on, off
+
++ enableStartAlert
+    + Enable alerts when device start. Possible value: on, off
+
++ enableStopAlert
+    + Enable alerts when device stop. Possible value: on, off
+
+### LAN API related
+
++ deviceIP
+    + IP of the device you want to monitor. If set to 0.0.0.0 will search for it but I don't recommend it. Was made available because of problem with the search device api.
 
 ### Cloud API related
 
@@ -89,9 +125,6 @@ This is all parameters you must configure to make the application run. There is 
 
 + passTpLink
     + Password to connect in TPLink app.
-
-+ waitBetweenRead
-    + Thats the time between each poll to the power of the device in second.
 
 # Package
 

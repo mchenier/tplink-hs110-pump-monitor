@@ -5,9 +5,9 @@ var log4js = require('log4js');
 log4js.configure({
   appenders: {
     out: { type: 'console' }, 
-    info: { type: 'file', filename: './' + CONFIG.logFileName + '.log' },
-    debug: { type: 'file', filename: './' + CONFIG.logFileName + '_debug.log' },
-    graph: { type: 'file', filename: './' + CONFIG.logFileName + '_graph.log' }
+    info: { type: 'file', filename: './log/' + CONFIG.logFileName + '.log' },
+    debug: { type: 'file', filename: './log/' + CONFIG.logFileName + '_debug.log' },
+    graph: { type: 'file', filename: './log/' + CONFIG.logFileName + '_graph.log' }
   },
   categories: {
     default: { appenders: ['out','info'], level: 'info' },
@@ -49,15 +49,21 @@ var monitoredDevice = {
   isDeviceStopped: function() { return !this.started; },
   startDevice: function() { 
     this.started = true;
-    logger.info(CONFIG.aliasDevice + " Started");
-    sendEmail(CONFIG.aliasDevice + " Started");
-    this.lastStartedTime = getDate();  
+    this.lastStartedTime = getDate();
+
+    if(CONFIG.enableStartAlert == "on") {
+      logger.info(CONFIG.aliasDevice + " Started");
+      sendEmail(CONFIG.aliasDevice + " Started");
+    }      
   },
   stopDevice: function() {    
     this.started = false;
-    logger.info(CONFIG.aliasDevice + " Stopped");
-    sendEmail(CONFIG.aliasDevice + " stopped");
     saveGraphData();
+
+    if(CONFIG.enableStopAlert == "on") {
+      logger.info(CONFIG.aliasDevice + " Stopped");
+      sendEmail(CONFIG.aliasDevice + " stopped");
+    }    
   }   
 }
 
@@ -77,14 +83,62 @@ async function main() {
   }    
 }
 
-function lanApi() {
+async function lanApi() {
   const { Client } = require('tplink-smarthome-api');
   const client = new Client();
 
-  client.startDiscovery().on('device-new', (plug) => {
-    if (plug.alias == CONFIG.aliasDevice) {
-      plug.on('emeter-realtime-update', monitoring);
-    }    
+  let device = undefined;
+  if(CONFIG.deviceIP != "0.0.0.0") {
+      device = await client.getDevice({host: CONFIG.deviceIP})
+    .then((plug)=>{
+      if (plug.alias == CONFIG.aliasDevice) {
+        loggerDebug.info("Connected: " + plug.alias);     
+        return plug;
+      }      
+    })
+    .catch((err) => {
+      loggerDebug.info(err);
+    });     
+  }
+  else {
+    device = await lanDiscovery(client)
+    .then((plug)=>{
+      if (plug.alias == CONFIG.aliasDevice) {
+        loggerDebug.info("Discovered: " + plug.alias);     
+        return plug;
+      }      
+    });
+  }
+
+  if(device == undefined) {    
+    loggerDebug.info("Device not found");
+    return;
+  }
+
+  while (true) {
+    try {
+      monitoredDevice.usage = await device.emeter.getRealtime();
+      
+      monitoring(monitoredDevice.usage)
+      
+      await sleep(CONFIG.waitBetweenRead);  
+    }
+    catch (err) {
+      loggerDebug.info(err);
+      break; 
+    }      
+  } 
+}
+
+async function lanDiscovery(client) {
+  return new Promise(
+    (resolve, reject) => {
+      client.startDiscovery().on('device-new', (plug) => {
+        if (plug.alias == CONFIG.aliasDevice) {        
+          loggerDebug.info("Discovered: " + plug.alias);     
+          resolve(plug);
+        }               
+      });
   });
 }
 
@@ -137,8 +191,9 @@ const monitoring = function(usage) {
   } 
 }
 
-function verifyLastTimeStarted() {  
-  if (getDate() - monitoredDevice.lastTimeInactivityAlert >= CONFIG.repeatIdleAlertEvery &&
+function verifyLastTimeStarted() {    
+  if (CONFIG.enableIdleAlert == "on" &&
+    getDate() - monitoredDevice.lastTimeInactivityAlert >= CONFIG.repeatIdleAlertEvery &&
    getDate() - monitoredDevice.lastStartedTime >= CONFIG.idleThreshold) {      
     sendEmail(CONFIG.aliasDevice + " didn't start for the last " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
     monitoredDevice.lastTimeInactivityAlert = getDate();
@@ -157,7 +212,8 @@ function verifyStartStop() {
 }
 
 function verifyRunningTime() {
-  if (getDate() - monitoredDevice.lastTimeRunningAlert >= CONFIG.repeatRunningAlertEvery &&
+  if (CONFIG.enableRunningAlert == "on" && 
+    getDate() - monitoredDevice.lastTimeRunningAlert >= CONFIG.repeatRunningAlertEvery &&
     monitoredDevice.isDeviceStarted() && getDate() - monitoredDevice.lastStartedTime >= CONFIG.deviceRunningTimeThreshold) {
     sendEmail(CONFIG.aliasDevice + " running for more then " + (getDate() - monitoredDevice.lastStartedTime)/60 + " minutes");    
     monitoredDevice.lastTimeRunningAlert = getDate();
@@ -231,7 +287,7 @@ function saveGraphData() {
   let startDate = new Date(start*1000);
   let stopDate = new Date(stop*1000);
   
-  fs.appendFile('graph.csv', startDate.toLocaleDateString() + " " + startDate.toLocaleTimeString() + " , " +
+  fs.appendFile('./log/graph.csv', startDate.toLocaleDateString() + " " + startDate.toLocaleTimeString() + " , " +
   stopDate.toLocaleDateString() + " " + stopDate.toLocaleTimeString() + " , " +
   running + "\n", function (err) {
     if (err) throw err;

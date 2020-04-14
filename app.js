@@ -131,8 +131,7 @@ async function lanDiscovery(client) {
   return new Promise(
     (resolve, reject) => {
       client.startDiscovery().on('device-new', (plug) => {
-        if (plug.alias == CONFIG.aliasDevice) {        
-          loggerDebug.info("Discovered: " + plug.alias);     
+        if (plug.alias == CONFIG.aliasDevice) {            
           resolve(plug);
         }               
       });

@@ -1,6 +1,6 @@
 # TPLink HS110 Pump Monitor
 Monitor a HS110 power so you can get notification on device start and stop.
-There is also an alert if the device is idle for a long period of time.
+There is also an alert if the device is idle for a long period of time and if the device runs for too long.
 Usefull for a sump pump but could serve other needs.
 
 Written in Node.js using https://github.com/plasticrake/tplink-smarthome-api and https://www.npmjs.com/package/tplink-cloud-api.

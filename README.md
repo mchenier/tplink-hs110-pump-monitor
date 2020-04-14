@@ -144,11 +144,11 @@ Just have a config.json in the same directory has the executable and execute it.
 
 # Alert / Log
 
-Alert when device start.
-Alert when device stop.
-Alert when device runs for too much time.
-Alert when device is idle for too much time.
-Reminder alert for device idle and running pass the threshold.
++ Alert when device start.
++ Alert when device stop.
++ Alert when device runs for too much time.
++ Alert when device is idle for too much time.
++ Reminder alert for device idle and running pass the threshold.
 
 You can find logs in the ./log folder. 
 

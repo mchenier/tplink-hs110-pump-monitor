@@ -6,18 +6,15 @@ log4js.configure({
   appenders: {
     out: { type: 'console' }, 
     info: { type: 'file', filename: './log/' + CONFIG.logFileName + '.log' },
-    debug: { type: 'file', filename: './log/' + CONFIG.logFileName + '_debug.log' },
-    graph: { type: 'file', filename: './log/' + CONFIG.logFileName + '_graph.log' }
+    debug: { type: 'file', filename: './log/' + CONFIG.logFileName + '_debug.log' }
   },
   categories: {
     default: { appenders: ['out','info'], level: 'info' },
-    debug: { appenders: ['out','debug'], level: 'info' },
-    graph: { appenders: ['graph'], level: 'info' },
+    debug: { appenders: ['out','debug'], level: 'info' }
   }
   });    
 const logger = log4js.getLogger('default'); 
 const loggerDebug = log4js.getLogger('debug'); 
-const loggerGraph = log4js.getLogger('graph'); 
 
 //Init nodemailer
 const nodemailer = require('nodemailer');
@@ -125,7 +122,7 @@ async function lanApi() {
     }
     catch (err) {
       loggerDebug.info(err);
-      break; 
+      //break; 
     }      
   } 
 }
@@ -232,7 +229,7 @@ function readLogFile() {
   var fs = require('fs');
 
   return new Promise(function(resolve, reject) {
-    fs.readFile(CONFIG.logFileName + '.log', 'utf8', function(err, data) {
+    fs.readFile('./log/' + CONFIG.logFileName + '.log', 'utf8', function(err, data) {
         if(err) { 
             reject(err);  
         }
@@ -287,7 +284,7 @@ function saveGraphData() {
   let startDate = new Date(start*1000);
   let stopDate = new Date(stop*1000);
   
-  fs.appendFile('./log/graph.csv', startDate.toLocaleDateString() + " " + startDate.toLocaleTimeString() + " , " +
+  fs.appendFile('./log/' + CONFIG.logFileName + '_graph.csv', startDate.toLocaleDateString() + " " + startDate.toLocaleTimeString() + " , " +
   stopDate.toLocaleDateString() + " " + stopDate.toLocaleTimeString() + " , " +
   running + "\n", function (err) {
     if (err) throw err;

@@ -144,9 +144,17 @@ Just have a config.json in the same directory has the executable and execute it.
 
 # Alert / Log
 
-Every time the device start or stop there will be an entry in a log file of the name you choose.
-There will also an email sent to the email you choose. The entire log will be sent in the email.
-There is also an alert if the device didn't start for a period of time.
+Alert when device start.
+Alert when device stop.
+Alert when device runs for too much time.
+Alert when device is idle for too much time.
+Reminder alert for device idle and running pass the threshold.
+
+You can find logs in the ./log folder. 
+
+There is also a file *_graph.csv you can use to analyse your data more easely. I use Google Sheet and a scatter point graph.
+
+Every alert an email is sent to the email you choose. The last start/stop event will be send in the body of the message.
 
 # Improvement
 

@@ -1,10 +1,17 @@
 var CONFIG = require(process.cwd() + '/config.json');
 
 const utils = require("./utils.js");
-const transporter = utils.transporter;
 const logger = utils.logger;
 const loggerDebug = utils.loggerDebug;
 const tplinkAPI = require('./tplinkAPI.js');
+
+var api;
+if(CONFIG.apiSelection == "cloud") {
+  api = new tplinkAPI.cloudAPI();    
+} 
+else {
+  api = new tplinkAPI.lanAPI();
+}    
 
 var monitoredDevice = {
   started: false,
@@ -45,19 +52,11 @@ async function main() {
   loggerDebug.info("Alert for Excessive activity every: " + (CONFIG.repeatRunningAlertEvery/60).toFixed(2) + " minutes"); 
   monitoredDevice.init();
   
-  let api;
-  if(CONFIG.apiSelection == "cloud") {
-    api = new tplinkAPI.cloudAPI();    
-  } 
-  else {
-    api = new tplinkAPI.lanAPI();
-  }    
-
   await api.initDevice();
 
   while (true) {
-    try {
-      monitoredDevice.usage = await api.getUsage();
+    try {      
+      monitoredDevice.usage = await api.getUsage();      
       
       monitoring(monitoredDevice.usage)
       

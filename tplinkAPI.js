@@ -8,8 +8,10 @@ class tplinkAPI {
         this.device;            
     }
 
-    initDevice() {}
-    getUsage() {}
+    async initDevice() {}
+    async getUsage() {}
+    async getDayStats() {}
+    async getMonthStats() {}
 }
 
 class lanAPI extends tplinkAPI {
@@ -44,6 +46,16 @@ class lanAPI extends tplinkAPI {
     }
     async getUsage() {
         return await this.device.emeter.getRealtime();        
+    }
+
+    async getDayStats() {
+        var date = new Date();
+        return await this.device.emeter.getDayStats(date.getFullYear(), date.getMonth()+1);    
+    }
+
+    async getMonthStats() {
+        var date = new Date();
+        return await this.device.emeter.getMonthStats(date.getFullYear());    
     }
 
     async lanDiscovery(client) {
@@ -84,6 +96,14 @@ class cloudAPI extends tplinkAPI {
     }
     async getUsage() {
         return await this.device.getPowerUsage();
+    }
+
+    async getDayStats() {
+        return {day_list: []};    
+    }
+
+    async getMonthStats() {
+        return {month_list: []};    
     }
 }
 

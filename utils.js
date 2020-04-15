@@ -18,7 +18,7 @@ module.exports.loggerDebug = log4js.getLogger('debug');
 
 //Init nodemailer
 const nodemailer = require('nodemailer');
-module.exports.transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: CONFIG.emailSender,
@@ -65,8 +65,10 @@ async function logToEmail() {
     return dataLog;  
 }
     
-module.exports.sendEmail = async function sendEmail(message) {
+module.exports.sendEmail = async function sendEmail(message, api) {
     let bodyMessage = await logToEmail();
+
+    bodyMessage = bodyMessage + "\n\n" + await getHistoryStat(api);
 
     var mailOptions = {
         from: CONFIG.emailSender,
@@ -97,4 +99,49 @@ module.exports.saveGraphData = function saveGraphData(monitoredDevice) {
     running + "\n", function (err) {
         if (err) throw err;
     });
+}
+
+async function getHistoryStat(api) {
+
+    let history = "Global energy consumption for this month and this year\n\n";
+
+    dayStat = await api.getDayStats();  
+    for(data of dayStat.day_list ) {
+        history += JSON.stringify(data) + "\n"        
+    }
+
+    history += "\n";
+
+    monthStat = await api.getMonthStats();  
+    for(data of monthStat.month_list) {
+        history += JSON.stringify(data) + "\n"  
+    }
+
+    return history;
+}
+
+module.exports.writeHistoryStatToCSV = async function writeHistoryStatToCSV(api) {
+    let fs = require('fs');
+        
+    fs.writeFile('./log/' + CONFIG.logFileName + '_energy_graph.csv', "Global energy consumption\n", function (err) {
+        if (err) throw err;
+    });
+
+    dayStat = await api.getDayStats();  
+    for(data of dayStat.day_list ) {
+        fs.appendFile('./log/' + CONFIG.logFileName + '_energy_graph.csv', JSON.stringify(data) + "\n", function (err) {
+            if (err) throw err;
+        });
+    }
+
+    fs.appendFile('./log/' + CONFIG.logFileName + '_energy_graph.csv', "\n", function (err) {
+        if (err) throw err;
+    });
+
+    monthStat = await api.getMonthStats();  
+    for(data of monthStat.month_list) {
+        fs.appendFile('./log/' + CONFIG.logFileName + '_energy_graph.csv', JSON.stringify(data) + "\n", function (err) {
+            if (err) throw err;
+        });        
+    }
 }

@@ -9,7 +9,7 @@
     "repeatRunningAlertEvery": 1800,
     "repeatIdleAlertEvery": 1800,
     "deviceRunningTimeThreshold": 360,
-    "nbLineLogEmail": 50,
+    "nbLineLogEmail": 10,
     "waitBetweenRead": 10,
 
     "enableIdleAlert": "on",

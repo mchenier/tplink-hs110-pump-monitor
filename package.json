@@ -16,5 +16,8 @@
   },
   "author": "",
   "license": "ISC",
-  "bin": "app.js"
+  "bin": "app.js",
+  "pkg": {
+    "scripts": "./*.js"
+  }
 }

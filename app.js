@@ -55,8 +55,8 @@ async function main() {
   await api.initDevice();
 
   while (true) {
-    try {      
-      monitoredDevice.usage = await api.getUsage();      
+    try {              
+      monitoredDevice.usage = await api.getUsage();   
       
       monitoring(monitoredDevice.usage)
       
@@ -88,7 +88,7 @@ function verifyStartStop() {
       monitoredDevice.startDevice();    
       if(CONFIG.enableStartAlert == "on") {
         logger.info(CONFIG.aliasDevice + " Started");
-        utils.sendEmail(CONFIG.aliasDevice + " Started");
+        utils.sendEmail(CONFIG.aliasDevice + " Started", api);
       }      
     }
   }
@@ -96,7 +96,7 @@ function verifyStartStop() {
     monitoredDevice.stopDevice();
     if(CONFIG.enableStopAlert == "on") {
       logger.info(CONFIG.aliasDevice + " Stopped");
-      utils.sendEmail(CONFIG.aliasDevice + " stopped");
+      utils.sendEmail(CONFIG.aliasDevice + " stopped", api);
     }         
   }
 }
@@ -105,7 +105,7 @@ function verifyIdleTime() {
   if (CONFIG.enableIdleAlert == "on" &&
     monitoredDevice.getTimeFromLastIdleAlert() >= CONFIG.repeatIdleAlertEvery &&
     monitoredDevice.isDeviceStopped && monitoredDevice.getTimeSinceLastStart() >= CONFIG.idleThreshold) {      
-    utils.sendEmail(CONFIG.aliasDevice + " didn't start for the last " + (monitoredDevice.getTimeSinceLastStart())/60 + " minutes");    
+    utils.sendEmail(CONFIG.aliasDevice + " didn't start for the last " + (monitoredDevice.getTimeSinceLastStart())/60 + " minutes", api);    
     monitoredDevice.lastTimeIdleAlert = utils.getDate();
   }
 }
@@ -114,7 +114,7 @@ function verifyRunningTime() {
   if (CONFIG.enableRunningAlert == "on" && 
     monitoredDevice.getTimeFromLastRunningAlert() >= CONFIG.repeatRunningAlertEvery &&
     monitoredDevice.isDeviceStarted() && monitoredDevice.getTimeSinceLastStart() >= CONFIG.deviceRunningTimeThreshold) {
-    utils.sendEmail(CONFIG.aliasDevice + " running for more then " + (monitoredDevice.getTimeSinceLastStart())/60 + " minutes");    
+    utils.sendEmail(CONFIG.aliasDevice + " running for more then " + (monitoredDevice.getTimeSinceLastStart())/60 + " minutes", api);    
     monitoredDevice.lastTimeRunningAlert = utils.getDate();
   }
 }

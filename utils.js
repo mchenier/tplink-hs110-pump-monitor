@@ -30,9 +30,11 @@ module.exports.sleep = function sleep(s) {
     return new Promise(resolve => setTimeout(resolve, s*1000), rejected => {});
 }
 
-module.exports.getDate = function getDate() {
+function getDate() {
     return Date.now()/1000;
 }
+
+module.exports.getDate = getDate;
 
 function readLogFile() {
     var fs = require('fs');
@@ -89,7 +91,7 @@ module.exports.saveGraphData = function saveGraphData(monitoredDevice) {
     let fs = require('fs');
         
     let start = monitoredDevice.lastStartedTime;    
-    let stop = utils.getDate();
+    let stop = getDate();
     let running = stop-start;
     let startDate = new Date(start*1000);
     let stopDate = new Date(stop*1000);

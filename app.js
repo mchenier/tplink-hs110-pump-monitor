@@ -58,7 +58,7 @@ async function main() {
     try {              
       monitoredDevice.usage = await api.getUsage();   
       
-      monitoring(monitoredDevice.usage)
+      monitoring(monitoredDevice.usage);
       
       await utils.sleep(CONFIG.waitBetweenRead);  
     }

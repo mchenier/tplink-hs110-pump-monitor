@@ -54,7 +54,7 @@ async function main() {
   
   await api.initDevice();
 
-  while (true) {
+  while (api.getDevice() != undefined) {
     try {              
       monitoredDevice.usage = await api.getUsage();   
       

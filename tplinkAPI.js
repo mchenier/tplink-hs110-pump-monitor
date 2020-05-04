@@ -8,6 +8,10 @@ class tplinkAPI {
         this.device;            
     }
 
+    async getDevice() {
+        return await this.device;        
+    }
+
     async initDevice() {}
     async getUsage() {}
     async getDayStats() {}
@@ -44,6 +48,7 @@ class lanAPI extends tplinkAPI {
             });
         }
     }
+    
     async getUsage() {
         return await this.device.emeter.getRealtime();        
     }

@@ -9,7 +9,7 @@ You can select if you prefer using the cloud API or Lan API.
 The cloud API has some limitation on the number of calls you can do per day so it may be best to use the LAN if possible.
 
 New UI added
-![Image of Yaktocat](UISample.png)
+![UI Sample](UISample.PNG)
 
 # Usage 
 

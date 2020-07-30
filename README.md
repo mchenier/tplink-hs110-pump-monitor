@@ -168,8 +168,6 @@ Just have a config.json in the same directory has the executable and execute it.
 
 You can find logs in the ./log folder. 
 
-There is also a file *_graph.csv you can use to analyse your data more easely. I use Google Sheet and a scatter point graph.
-
 Every alert an email is sent to the email you choose. The last start/stop event will be send in the body of the message.
 
 # Improvement

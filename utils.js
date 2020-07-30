@@ -96,12 +96,13 @@ module.exports.saveGraphData = function saveGraphData(monitoredDevice) {
     let startDate = new Date(start*1000);
     let stopDate = new Date(stop*1000);
 
-    fs.appendFile('./log/' + CONFIG.logFileName + '_graph.csv', startDate.toLocaleDateString() + " " + startDate.toLocaleTimeString() + " , " +
+    fs.appendFile('./ui/src/assets/' + 'device_graph.csv', startDate.toLocaleDateString() + " " + startDate.toLocaleTimeString() + " , " +
     stopDate.toLocaleDateString() + " " + stopDate.toLocaleTimeString() + " , " +
     running + "\n", function (err) {
         if (err) throw err;
     });
 }
+
 
 async function getHistoryStat(api) {
 

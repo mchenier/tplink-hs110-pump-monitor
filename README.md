@@ -126,6 +126,19 @@ This is all parameters you must configure to make the application run. There is 
 + passTpLink
     + Password to connect in TPLink app.
 
+# Graph / UI
+
+I added a first draft of UI in React with Plotly to plot the data I stored in the device_graph.csv.
+To see the UI just execute the following commands.
+
+```sh
+$ cd ui
+$ npm install
+$ npm start
+```
+
+You can run both the monitoring app and the ui at the same time. The ui won't refresh witht he new data automatically but a browser refresh will do for now.
+
 # Package
 
 If you want to make a package. I used the pkg utiliy (https://github.com/zeit/pkg)

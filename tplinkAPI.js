@@ -75,44 +75,44 @@ class lanAPI extends tplinkAPI {
     }
 }
 
-class cloudAPI extends tplinkAPI {   
-    constructor() {
-        super();
-    } 
-    async initDevice() {
-        const { login } = require("tplink-cloud-api");    
+// class cloudAPI extends tplinkAPI {   
+//     constructor() {
+//         super();
+//     } 
+//     async initDevice() {
+//         const { login } = require("tplink-cloud-api");    
         
-        try {
-            var tplink = await login(CONFIG.userTpLink, CONFIG.passTpLink)
-            await tplink.getDeviceList();
-        }
-        catch (err) {
-            loggerDebug.info(err); 
-            return;
-        } 
+//         try {
+//             var tplink = await login(CONFIG.userTpLink, CONFIG.passTpLink)
+//             await tplink.getDeviceList();
+//         }
+//         catch (err) {
+//             loggerDebug.info(err); 
+//             return;
+//         } 
     
-        try {
-            this.device = tplink.getHS110(CONFIG.aliasDevice);
-        }  
-        catch(err) {
-            loggerDebug.info(CONFIG.aliasDevice + " " + err);
-            return;
-        }         
-    }
-    async getUsage() {
-        return await this.device.getPowerUsage();
-    }
+//         try {
+//             this.device = tplink.getHS110(CONFIG.aliasDevice);
+//         }  
+//         catch(err) {
+//             loggerDebug.info(CONFIG.aliasDevice + " " + err);
+//             return;
+//         }         
+//     }
+//     async getUsage() {
+//         return await this.device.getPowerUsage();
+//     }
 
-    async getDayStats() {
-        return {day_list: []};    
-    }
+//     async getDayStats() {
+//         return {day_list: []};    
+//     }
 
-    async getMonthStats() {
-        return {month_list: []};    
-    }
-}
+//     async getMonthStats() {
+//         return {month_list: []};    
+//     }
+// }
 
 module.exports = {
     lanAPI: lanAPI,
-    cloudAPI: cloudAPI
+    //cloudAPI: cloudAPI
 }

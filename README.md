@@ -3,10 +3,7 @@ Monitor a HS110 power so you can get notification on device start and stop.
 There is also an alert if the device is idle for a long period of time and if the device runs for too long.
 Usefull for a sump pump but could serve other needs.
 
-Written in Node.js using https://github.com/plasticrake/tplink-smarthome-api and https://www.npmjs.com/package/tplink-cloud-api.
-You can select if you prefer using the cloud API or Lan API.
-
-The cloud API has some limitation on the number of calls you can do per day so it may be best to use the LAN if possible.
+Written in Node.js using https://github.com/plasticrake/tplink-smarthome-api
 
 New UI added
 ![UI Sample](UISample.PNG)
@@ -116,18 +113,6 @@ This is all parameters you must configure to make the application run. There is 
 
 + deviceIP
     + IP of the device you want to monitor. If set to 0.0.0.0 will search for it but I don't recommend it. Was made available because of problem with the search device api.
-
-### Cloud API related
-
-+ apiSelection
-    + Use tplink-cloud-api if set to cloud otherwise use tplink-smarthome-api. Other parameters below only usefull for cloud API.
-    cloud and lan should be use
-
-+ userTpLink
-    + Username to connect in TPLink app.
-
-+ passTpLink
-    + Password to connect in TPLink app.
 
 # Graph / UI
 

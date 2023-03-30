@@ -1,3 +1,6 @@
+# Project is archived
+This app is no longer supported since I moved to HomeAssistant to do about the same fonctions.
+
 # TPLink HS110 Pump Monitor
 Monitor a HS110 power so you can get notification on device start and stop.
 There is also an alert if the device is idle for a long period of time and if the device runs for too long.
